@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
-import sys
-import time
 import os
 import multiprocessing as mp
-import threading
-from queue import Queue
 import sysv_ipc
-import concurrent.futures
-
+import random
 key = 135
 mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
+keyP = 200
+mqP =sysv_ipc.MessageQueue(keyP, sysv_ipc.IPC_CREAT)
+
+class Card:
+	def __init__(self,name):
+		self.name=name
 
 class Joueur:
-	def __init__(self, numero, hand): # On lui attribue un numéro et une liste de cartes
+	def __init__(self, n,c): # n numero et c cartes en main
 		self.n=n
 		self.c=c
 		self.pts=0
@@ -50,7 +51,7 @@ def game(listOffer,sG,listPlayer):
   while (gameState):
     for _ in range(nbPlayer):	
       sG().wait			
-    for i in range(listOffer.length):
+    for i in range(len(listOffer)):
       del listOffer[i]
     for i in range(0,4):
       if(listPlayer[i].checkWin()):
@@ -60,13 +61,12 @@ def game(listOffer,sG,listPlayer):
        
 def player(pack,listOffer,s,sG,lock,np):
   global hand
-  c=[]
   for i in range(5):
     with lock:
-      c = c+pack.pop() #On tire une carte
+      listPlayer[np].c.append(pack.pop()) #On tire une carte
   while(gameState):
-    print("Hand of player : ",listPlayer[np].c)
-    offre=int(input("Want to make an offer ? \n put a nbr btw 1 and"+nbPlayer+ " \n If not, put another number ")) 
+    print("Hand of player "+ str(np+1) +": ",listPlayer[np].c)
+    offre=int(input("Want to make an offer ? \nPut a nbr btw 1 and "+str(nbPlayer)+ " \nIf not, put another number")) 
     with lock:
       if 0<offre<4:
         PlayerOffer=input("Which card?")
@@ -87,7 +87,7 @@ def player(pack,listOffer,s,sG,lock,np):
       client.join()
       sG.signal()
 
-def server(offer,hand,np,PlayerOffer):
+def server(offer,np,PlayerOffer):
   global hand
   global offre
   while True:
@@ -105,7 +105,7 @@ def server(offer,hand,np,PlayerOffer):
         hand.append(RecievdCard)
       mq.send(PlayerOffer, type=ProcessVisé)
       k=0
-      for i in range (hand.length()):
+      for i in range (len(hand)):
         if hand[i]==PlayerOffer:
           del hand[i]
           k+=1
@@ -113,11 +113,11 @@ def server(offer,hand,np,PlayerOffer):
             break
             
             
-def client(listOffer,hand,lock):
+def client(listOffer,lock):
   global hand
   print("List of offers :", offers)
   offre=int(input("Interested? Write the number of offer to accept, or 0 to refuse all"))
-  if 0<offre<listOffer.length+1:
+  if 0<offre<(len(listOffer)+1):
     offre=offre-1
     with lock:
       if(listOffer[offre]!="agreed"):
@@ -131,45 +131,52 @@ def client(listOffer,hand,lock):
           for i in range(listOffer[offre].nbCards -1):
             hand2.append(msg)
         j=0
-        for i in range (hand.length()-1):
+        for i in range (len(hand)-1):
           if hand[i]==carte:
             del hand[i]
           j+=1
           if j==listOffer[offre].nbCards:
             break
-          for i in range(listOffer.length() -1):
+          for i in range(len(listOffer) -1):
             quit=""
             quit=quit.encode()
             mq.send(quit,i)
         else:
           print("Sorry, the offer was already accepted")
-
+'''
 def instancieListJoueur(nbPlayer): #ToC
   l=[]
   for i in range(nbPlayer):
-    l.append(str(input("Entrer le nom du joueur ", i)))
-  return(l)
-
+    l.append(str(input("Entrer le nom du joueur "+ str( i)+" : ")))
+  return l
+'''
 if __name__ == "__main__":
+  
 	with mp.Manager() as manager:
 		gameState=True
 		s=[]
+		sG=[]
 		offers=[]
+		listPlayer=[]
 		nbPlayer=4
-		listPlayer=instancieListJoueur(nbPlayer)
-		for i in range(listPlayer.length()):
-			s.append[0]
-		lock=Lock()
-		# On ajoute les cartes à la pioche	
+		for i in range(4):
+			listPlayer.append(Joueur(i,[]))
+		for i in range(len(listPlayer)):
+			s.append(0)
+		lock=mp.Lock()
+		# On ajoute les carCartetes à la pioche	
 		pack = manager.list()
 		listOffer=[]
 		for i in range(5):
-			pack.append(Carte("Voiture"))
-			pack.append(Carte("Bateau"))
-			pack.append(Carte("Avion"))
+			pack.append("Car")
+			pack.append("Train")
+			pack.append("Airplane")
+			pack.append("Bike")
+			pack.append("Feet")
 		random.shuffle(pack)
-	
-		players = mp.Process(target=player, args=(pack,listOffer,s,sG,lock) in range(nbPlayer))
+		players=[0,0,0,0]
+		for i in range(nbPlayer):
+		  players[i] = mp.Process(target=player, args=(pack,listOffer,s,sG,lock,i))
 		game = mp.Process(target=game, args =(listOffer,lock,pack,listPlayer,sG))
 		game.start()
 		for k in players:
