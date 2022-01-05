@@ -2,7 +2,7 @@
 import sys
 import time
 import os
-import multiprocessing
+import multiprocessing as mp
 import threading
 from queue import Queue
 import sysv_ipc
@@ -10,6 +10,7 @@ import concurrent.futures
 
 key = 135
 mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
+
 class Joueur:
 	def __init__(self, numero, hand): # On lui attribue un numéro et une liste de cartes
 		self.n=n
@@ -20,178 +21,159 @@ class Joueur:
 	def print(self): # Fonction print
 		print("Joueur", self.numero)	
 	def checkWin(self): # Checker s"il peut gagner la partie
-		return len(set(self.hand))==1:
-	def addPts(self)
-		if self.c[0]="Shoes":
+		return len(set(self.c))==1
+	def addPts(self):
+		if self.c[0]=="Feet":
 			self.pts=self.pts+1
 			return 1
-		if self.c[0]="Bike":
-			self.points=self.points+2
+		if self.c[0]=="Bike":
+			self.pts=self.pts+2
 			return 2
-		if self.carte[0]="Train":
-			self.points=self.points+4
-			return 4
-		if self.c[0]="Car":
-      
+		if self.c[0]=="Train":
+			self.pts=self.pts+4
+			return 4	
+		if self.c[0]=="Car":
+			self.pts=self.pts+3
 			return 3
-		if self.hand[0]="Airplane":
-			self.points=self.points+5
-			return 5
+		if self.c[0]=="Airplane":
+			self.pts=self.pts+5
+			return 5	
 
 class Offre:
-	def __init__(self, joueurSource, nb):   # Statut de l'offre, joueur qui propose et recoit, cartes mises dans l'offre
-		self.state="blank"
-		self.joueurSource=joueurSource
-		self.nb	= nb	
+	def __init__(self, player, nb):   # Statut de l'offre, joueur qui propose et recoit, cartes mises dans l'offre
+		self.stateOfOffer="noOffer"
+		self.playerO=player
+		self.nbCards	= nb	
 
 
-key = 128 
-mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
-
-
-
-def game(offers,lock,deck,listJoueur)
-
-    while (gameContinues):
-
-		for _ in range(nbJoueur):	# On attend que tous les joueurs ai finit d'accepter des offres pour reset l'état des offres
-			semGame().wait			
-		for i in range(listOffre.length):
-			del listOffre[i]
-			
-
-		if(listeJoueur[0].checkWin()):
-			print("Le joueur 0 a sonné la cloche avec cette main :"+listeJoueur[0].hand+" il a marqué "+listeJoueur[0].addPoint()+" points")
-			if listeJoueur[0].point>= ptsLimites:
-				gameContinues=False
-		if(listeJoueur[1].checkWin()):
-			print("Le joueur 1 a sonné la cloche avec cette main :"+listeJoueur[1].hand+" il a marqué "+listeJoueur[1].addPoint()+" points")
-			if listeJoueur[1].point>= ptsLimites:
-				gameContinues=False
-		if(listeJoueur[2].checkWin()):
-			print("Le joueur 2 a sonné la cloche avec cette main :"+listeJoueur[2].hand+" il a marqué "+listeJoueur[2].addPoint()+" points")
-			if listeJoueur[2].point>= ptsLimites:
-				gameContinues=False
-		
-		
+def game(listOffer,sG,listPlayer):
+  while (gameState):
+    for _ in range(nbPlayer):	
+      sG().wait			
+    for i in range(listOffer.length):
+      del listOffer[i]
+    for i in range(0,4):
+      if(listPlayer[i].checkWin()):
+        print("Le joueur "+listPlayer[i].str(n)+" a déclaré avoir fini avec cette main :"+listPlayer[i].c+" il a engrengé "+listPlayer[i].addPts()+" points")
+        if listPlayer[i].pts>= limpts:
+          gameState=False
        
-def player(deck,listOffre,sem,semGame,lock)
-    hand=[]
-	for i in range(5):
-		with lock:
-			hand = hand+deck.pop()) #On tire une carte
-	while(gameContinues):
-		print("Ceci est votre main actuelle : ",listeJoueur[numJoueur].hand)
-		offre=int(input("Voulez vous faire une offre ? \n Tapez un nombre entre 1 et"+nbJoueurs+ "pour faire une offre de la valeur correspondante \n Tapez 0 ou "+nbJoueurs+" et plus si vous ne souhaitez pas faire d'offre")) 
-		with lock:
-            if 0<offre<4:
-                monOffre=input("Quel type de carte offrez vous")
-				listOffre.append(offre)
-            else:
-                listOffre.append(0)
+def player(pack,listOffer,s,sG,lock,np):
+  global hand
+  c=[]
+  for i in range(5):
+    with lock:
+      c = c+pack.pop() #On tire une carte
+  while(gameState):
+    print("Hand of player : ",listPlayer[np].c)
+    offre=int(input("Want to make an offer ? \n put a nbr btw 1 and"+nbPlayer+ " \n If not, put another number ")) 
+    with lock:
+      if 0<offre<4:
+        PlayerOffer=input("Which card?")
+        listOffer.append(offre)
+      else:
+        listOffer.append(0)
+    for i in range(nbPlayer):
+      if	((np+i)%nbPlayer!=np):
+        s[(np+i)%nbPlayer].signal()
+    for i in range(nbPlayer-1):
+      print("Waiting of "+nbPlayer-1-i+ " others")
+      s[np].wait
+      server = mp.Thread(target=server, args=(listOffer[np],hand,np,PlayerOffer),)
+      client = mp.Thread(target=client, args =(listOffer,hand,lock))
+      server.start()
+      client.start()
+      server.join()
+      client.join()
+      sG.signal()
 
-		for i in range(nbJoueurs):
-			if	((numJoueur+i)%nbJoueurs!=numJoueur):
-				sem[(numJoueur+i)%nbJoueurs].signal()
-		for i in range(nbJoueurs-1):   #On attend que tous les joueurs ai fini de faire leurs offres
-			print("En attente des "+nbJoueurs-1-i+ "autres joueurs")
-			sem[numJoueurs].wait
-        
-        server = Thread(target=server, args=(listOffre[numJoueur],hand,numJoueur,monOffre)
-        client = Thread(target=client, args =(listOffre,hand,lock))
-		server.start()
-        client.start()
-        server.join()
-        client.join()
-		semGame().signal
-		
-
-def server(offer,hand,numJoueur,monOffre):
-    global hand
-    global offers
-    while True:
-        m, t=mq.receive()
-        if t==0:
-			
-			mq.remove()
-			break
-        if t==numJoueur:
-            offer="accepted"
-            x=m.decode()
-            x=x.split()
-            targetPid=x[0]
-            cardReceived=x[1]
-            for i in range(offer.nb)
-                hand.append(cardReceived)
-            mq.send(monOffre, type=targetPid)
-            j=0
-            for i in range (hand.length()):
-                if hand[i]==monOffre:
-                    del hand[i]
-                    j++
-                if j==offer.nb:
-                    break
+def server(offer,hand,np,PlayerOffer):
+  global hand
+  global offre
+  while True:
+    m, type=mq.receive()
+    if t==0:
+      mq.remove()
+      break
+    if t==np:
+      offer.stateOfOffer="agreed"
+      u=m.decode()
+      u=u.split()
+      ProcessVisé=u[0]
+      RecievdCard=u[1]
+      for i in range(offer.nbCards):
+        hand.append(RecievdCard)
+      mq.send(PlayerOffer, type=ProcessVisé)
+      k=0
+      for i in range (hand.length()):
+        if hand[i]==PlayerOffer:
+          del hand[i]
+          k+=1
+          if k==offer.nbCards:
+            break
             
             
-def client(offers,hand,lock):
-    global hand
-    print("Voici la liste des offres :", offers)
-		offre(int(input("Voulez vous accepter une offre ?\n Tapez le numéro de l'offre que vous souhaitez accepter \n Attention ! Taper 1 choisira la première offre et taper 0 déclinera les offres")))
-		if 0<offre<listOffre.length+1:
-            offre=offre-1
-			with lock:
-				if(listOffre[offre]!="accepted"):
-                    carte=choixDeCarteAEchanger()
-                    msg=carte+" "+os.getpid()
-                    msg = msg.encode()
-                    mq.send(msg,offers[offre].joueurSource)
-                    m,t=mq.receive()
-                    if t==os.getpid
-                        msg=m.decode()
-                        for i in range(offers.[offre].nb)
-                            hand2.append(msg)
+def client(listOffer,hand,lock):
+  global hand
+  print("List of offers :", offers)
+  offre=int(input("Interested? Write the number of offer to accept, or 0 to refuse all"))
+  if 0<offre<listOffer.length+1:
+    offre=offre-1
+    with lock:
+      if(listOffer[offre]!="agreed"):
+        carte=echangeC()
+        msg=carte+" "+os.getpid()
+        msg = msg.encode()
+        mq.send(msg,offre[offre].joueurSource)
+        m,t=mq.receive()
+        if t==os.getpid():
+          msg=m.decode()
+          for i in range(listOffer[offre].nbCards -1):
+            hand2.append(msg)
+        j=0
+        for i in range (hand.length()-1):
+          if hand[i]==carte:
+            del hand[i]
+          j+=1
+          if j==listOffer[offre].nbCards:
+            break
+          for i in range(listOffer.length() -1):
+            quit=""
+            quit=quit.encode()
+            mq.send(quit,i)
+        else:
+          print("Sorry, the offer was already accepted")
 
-                    for i in range (hand.length()):
-                        if hand[i]==carte:
-                            del hand[i]
-                            j++
-                        if j==offers[offre].nb:
-                            break
-                for i in range(offers.length[]):
-                    quit=""
-                    quit=quit.encode()
-                    mq.send(quit,i)
-
-				else:
-					print("Dommage une offre a déjà été acceptée")
-
-
+def instancieListJoueur(nbPlayer): #ToC
+  l=[]
+  for i in range(nbPlayer):
+    l.append(str(input("Entrer le nom du joueur ", i)))
+  return(l)
 
 if __name__ == "__main__":
-
-	with Manager() as manager:
-		gameContinues=True
-		sem=[]
+	with mp.Manager() as manager:
+		gameState=True
+		s=[]
 		offers=[]
-		listJoueur=instancieListJoueur()
-		for i in range(ListJoueur.length()):
-			sem.append[0]
+		nbPlayer=4
+		listPlayer=instancieListJoueur(nbPlayer)
+		for i in range(listPlayer.length()):
+			s.append[0]
 		lock=Lock()
-		nbJoueur=3
 		# On ajoute les cartes à la pioche	
-		deck = manager.list()
-        listOffre=[]
+		pack = manager.list()
+		listOffer=[]
 		for i in range(5):
-			deck.append(Carte("Voiture"))
-			deck.append(Carte("Bateau"))
-			deck.append(Carte("Avion"))
-		random.shuffle(deck)
+			pack.append(Carte("Voiture"))
+			pack.append(Carte("Bateau"))
+			pack.append(Carte("Avion"))
+		random.shuffle(pack)
 	
-		players = (Process(target=player, args=(deck,listOffre,sem,semGame,lock) in range(nbJoueur))
-        game = Process(target=game, args =(offers,lock,deck,listJoueur,semGame))
+		players = mp.Process(target=player, args=(pack,listOffer,s,sG,lock) in range(nbPlayer))
+		game = mp.Process(target=game, args =(listOffer,lock,pack,listPlayer,sG))
 		game.start()
-		for i in players:
-        	i.start()
+		for k in players:
+			k.start()
 		game.join()
-        for i in players:
-        	i.join()
+		for u in players:
+			u.join()

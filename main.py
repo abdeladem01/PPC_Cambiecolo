@@ -1,3 +1,4 @@
+'''
 #!/usr/bin/env python3
 import sys
 import time
@@ -53,7 +54,7 @@ Procédure player (Semaphore s, pack, Semaphore sG, Mutex lock, list[Offer] lsOf
 |	Tant que le jeu continue : //gameState == true:
 |	|	println(“Hand of Player “ ,listPlayer[np].c)
 |	|	int offr = entrée(“Want to make an offer : put a nbr btw 1
-|	|	|	and”+string(nbPlayers)+”. If not put another nbr”)
+|	|	|	and”+string(nbPlayer)+”. If not put another nbr”)
 |	|	on lock une nouvelle fois :
 |	|	|	si offr entre 1 et nbPlayers: //nbPlayers étant 4
 |	|	|	|	Card PlayerOffer=(“Which card?”) 
@@ -104,7 +105,7 @@ Procédure serveur (Card offer,  listString[] hand,entier np,Card PlayerOffer):
 |           | 	|	CarteRecu=u[1]
 |           | 	Pour i allant de 0 au nb de carte offerte:
 |           |     	|	hand.add(carteRecu)
-|           | 	mq.send(PlayerOffer, type=ProcessVisé) //dans le message queue
+|           | 	mq.send(PlayerOffer, type=ProcessVisé) //dans le message 
 |           | 	k=0
 |           | 	Pour i allant de 0 a hand.length())
 |           |     	|	Si hand[i]=PlayerOffer:
@@ -182,9 +183,9 @@ avec notre Manager() nommé manage par la suiter:
 |	listCard[] offers=[]
 |	list[Player] listPlayer=Liste de tous les joueurs à implémenter
 |	Pour i allant de 0 à nombre de Joueurs -1:
-|	|	sem.add(0)
+|	|	s.add(0) //sem
 |	Mutex lock=Lock()
-|	nbJoueur=4	
+|	nbPlayer=4	
 |	pack= manager.list() //pack de cartes
 |           list[Card] listOffre=[]
 |	Pour i allant de 0 :
@@ -200,3 +201,6 @@ avec notre Manager() nommé manage par la suiter:
 |	game.join()
 |       	Pour un joueur i parmi les joueurs du tableau players:
 |      		i.join()
+
+
+'''
