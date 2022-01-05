@@ -1,9 +1,8 @@
-'''
 #!/usr/bin/env python3
 import sys
 import time
 import os
-import multiprocessing
+import multiprocessing as mp
 import threading
 from queue import Queue
 import sysv_ipc
@@ -12,195 +11,169 @@ import concurrent.futures
 key = 135
 mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
 
-//pour le reste du pseudo code : pack désigne la liste de l'ensemble du jeu de carte
+class Joueur:
+	def __init__(self, numero, hand): # On lui attribue un numéro et une liste de cartes
+		self.n=n
+		self.c=c
+		self.pts=0
+	def addC (self,carte): # On peut ajouter une carte à sa main
+		self.c.append(carte)
+	def print(self): # Fonction print
+		print("Joueur", self.numero)	
+	def checkWin(self): # Checker s"il peut gagner la partie
+		return len(set(self.c))==1
+	def addPts(self):
+		if self.c[0]=="Feet":
+			self.pts=self.pts+1
+			return 1
+		if self.c[0]=="Bike":
+			self.pts=self.pts+2
+			return 2
+		if self.c[0]=="Train":
+			self.pts=self.pts+4
+			return 4	
+		if self.c[0]=="Car":
+			self.pts=self.pts+3
+			return 3
+		if self.c[0]=="Airplane":
+			self.pts=self.pts+5
+			return 5	
 
-Structure Player :
-|	entier n,  listString[] c, entier pts
-|	Constructeur Player(entier n app {1 -> 4}, listString[] c):
-|	|	this.n  =n; this.c = c ; this.pts = 0;
-|	Fonction rien addC(Card c):
-|	|	this.c.add(c)
-|	Fonction  entier addPts(): // On vérifie que la première vu que les 5 sont les mêmes
-|	|	inspecter si this.c[0] :
-|	|	|	cas  “Feet” : this.pts+=1; return 1; //Logique  du - au + rapide
-|	|	|	cas “Bike” : this.pts+=2 ; return 2;
-|	|	|	cas “Train”: this.pts+=4 ; return 4;
-|	|	|	cas ”Car”: this.pts+=3 ; return 3;
-|	|	|	cas ”Airplane”: this.pts+=5 ; return 5;
-|	Fonction Card delC(Card c):
-|	|	this.c.pop(c)
-|	Fonction String toString(): // pour print le joueur sur le terminal
-|	|	retourne (“Joueur n° ” + n.toString )
-
-Structure Offer :
-|	String stateOfOffer ; Player playerOr ; entier nbCards
-|	Constructeur Offer(Player p, entier nb):
-|	|	this.stateOfOffer=”noOffer” ; this.playerO = p; this.nbCards = nb;
-
-
-
-
-
-
-
-
-
-
-Procédure player (Semaphore s, pack, Semaphore sG, Mutex lock, list[Offer] lsOff):
-|	list c = [] //main du joueur
-|	Pour i allant de 0 à 4 :
-|	|	on lock : //Mutex lock 
-|	|	|	c.add(pack.pop())
-|	Tant que le jeu continue : //gameState == true:
-|	|	println(“Hand of Player “ ,listPlayer[np].c)
-|	|	int offr = entrée(“Want to make an offer : put a nbr btw 1
-|	|	|	and”+string(nbPlayer)+”. If not put another nbr”)
-|	|	on lock une nouvelle fois :
-|	|	|	si offr entre 1 et nbPlayers: //nbPlayers étant 4
-|	|	|	|	Card PlayerOffer=(“Which card?”) 
-|	|	|	|	lsOff.add(PlayerOffer)
-|	|	|	sinon, lsOff.add(0)
-|	|	Boucle Pour permet de:
-|	|	|	envoyer à tous les autres joueurs à part celui concerné :
-|	|	|	|	sem[np des autres (à parcourir grâce à Pour].signal()
-|	|	Pour i allant de 0 à nbPlayers-2 : //waiting for others offers 
-|	|	|	sem[np].wait() //attente
-|	|	srv = Thread(server(lsOff[np],c,
-|
-|
-
-Procédure game (Offer offers ,Mutex lock , pack, list[Player] listPlayer):
-|	Tant que le jeu continue : //par un boolean gameState == True
-|	|	Pour le nombre de joueur:
-|	|	|	semGame().wait  //semaphore pour attendre tout le monde		
-|	|	Pour le nombre d’offre encore dans la liste des offres:
-|	|	|	del listOffre[i]
-|	|	Pour entier i allant de 0 à 3 :		
-|	|	|	Si listPlayer[i] a gagné:
-|	|	|	|	Afficher ("listPlayer[i] a déclaré avoir fini avec cette main 
-|	|	|	|	:"+listPlayer[i].c+" il a engrengé"+listPlayer[i].addPts()+"
-|	|	|	|	points")
-|	|	|	|	Si listPlayer[i].pts>= plim:
-|	|	|	|	|	Jeu s’arrête //notre boolean gameState <- false
+class Offre:
+	def __init__(self, player, nb):   # Statut de l'offre, joueur qui propose et recoit, cartes mises dans l'offre
+		self.stateOfOffer="noOffer"
+		self.playerO=player
+		self.nbCards	= nb	
 
 
+def game(listOffer,sG,listPlayer):
+  while (gameState):
+    for _ in range(nbPlayer):	
+      sG().wait			
+    for i in range(listOffer.length):
+      del listOffer[i]
+    for i in range(0,4):
+      if(listPlayer[i].checkWin()):
+        print("Le joueur "+listPlayer[i].str(n)+" a déclaré avoir fini avec cette main :"+listPlayer[i].c+" il a engrengé "+listPlayer[i].addPts()+" points")
+        if listPlayer[i].pts>= limpts:
+          gameState=False
+       
+def player(pack,listOffer,s,sG,lock,np):
+  global hand
+  c=[]
+  for i in range(5):
+    with lock:
+      c = c+pack.pop() #On tire une carte
+  while(gameState):
+    print("Hand of player : ",listPlayer[np].c)
+    offre=int(input("Want to make an offer ? \n put a nbr btw 1 and"+nbPlayer+ " \n If not, put another number ")) 
+    with lock:
+      if 0<offre<4:
+        PlayerOffer=input("Which card?")
+        listOffer.append(offre)
+      else:
+        listOffer.append(0)
+    for i in range(nbPlayer):
+      if	((np+i)%nbPlayer!=np):
+        s[(np+i)%nbPlayer].signal()
+    for i in range(nbPlayer-1):
+      print("Waiting of "+nbPlayer-1-i+ " others")
+      s[np].wait
+      server = mp.Thread(target=server, args=(listOffer[np],hand,np,PlayerOffer),)
+      client = mp.Thread(target=client, args =(listOffer,hand,lock))
+      server.start()
+      client.start()
+      server.join()
+      client.join()
+      sG.signal()
 
+def server(offer,hand,np,PlayerOffer):
+  global hand
+  global offre
+  while True:
+    m, type=mq.receive()
+    if t==0:
+      mq.remove()
+      break
+    if t==np:
+      offer.stateOfOffer="agreed"
+      u=m.decode()
+      u=u.split()
+      ProcessVisé=u[0]
+      RecievdCard=u[1]
+      for i in range(offer.nbCards):
+        hand.append(RecievdCard)
+      mq.send(PlayerOffer, type=ProcessVisé)
+      k=0
+      for i in range (hand.length()):
+        if hand[i]==PlayerOffer:
+          del hand[i]
+          k+=1
+          if k==offer.nbCards:
+            break
+            
+            
+def client(listOffer,hand,lock):
+  global hand
+  print("List of offers :", offers)
+  offre=int(input("Interested? Write the number of offer to accept, or 0 to refuse all"))
+  if 0<offre<listOffer.length+1:
+    offre=offre-1
+    with lock:
+      if(listOffer[offre]!="agreed"):
+        carte=echangeC()
+        msg=carte+" "+os.getpid()
+        msg = msg.encode()
+        mq.send(msg,offre[offre].joueurSource)
+        m,t=mq.receive()
+        if t==os.getpid():
+          msg=m.decode()
+          for i in range(listOffer[offre].nbCards -1):
+            hand2.append(msg)
+        j=0
+        for i in range (hand.length()-1):
+          if hand[i]==carte:
+            del hand[i]
+          j+=1
+          if j==listOffer[offre].nbCards:
+            break
+          for i in range(listOffer.length() -1):
+            quit=""
+            quit=quit.encode()
+            mq.send(quit,i)
+        else:
+          print("Sorry, the offer was already accepted")
 
+def instancieListJoueur(nbPlayer): #ToC
+  l=[]
+  for i in range(nbPlayer):
+    l.append(str(input("Entrer le nom du joueur ", i)))
+  return(l)
 
-
-
-Procédure serveur (Card offer,  listString[] hand,entier np,Card PlayerOffer):
-|	global hand //global parceque sera utilisé après
-|	global offer
-|	Boucle infinie:
-|	|	m, type=mq.receive()
-|	|	Si type=0:		
-|	|	|	mq.remove()
-|	|	|	break
-|        	|	Si type=np:
-|           | 	|	offer.stateOfOffer="accepté"
-|           | 	|	u=decode m //md
-|           | 	|	u=Split(u)
-|           | 	|	ProcessVisé=u[0]
-|           | 	|	CarteRecu=u[1]
-|           | 	Pour i allant de 0 au nb de carte offerte:
-|           |     	|	hand.add(carteRecu)
-|           | 	mq.send(PlayerOffer, type=ProcessVisé) //dans le message 
-|           | 	k=0
-|           | 	Pour i allant de 0 a hand.length())
-|           |     	|	Si hand[i]=PlayerOffer:
-|           |         	|	|	del han[i]
-|           |        	|	|	 k=k+1
-|           |    	|	 Si j=nombre d’offre:
-|           |         	|	|	break
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Procédure client(Card offer, listString[] hand,Mutex lock):
-|	global hand
-|	print("Voici la liste des offres :", offre)
-|    	offre(input("Interested? Write the number of offer to accept, or 0 to refuse all”)  
-|     	Si offer se situe entre 0 et lsOff.lenth +1 :
-|           |	offer=offer-1
-|	|	on utilise le Mutex lock:
-|	|	|	Si (listOffre[offre]!="accepted"):
-|           |        	|	|	carte=exchangeC() // on implémentera cette fonction plus tard
-|           |       	|	|	msg=carte+" "+os.getpid()
-|           |         	|	|	msg = msg.encode()
-|           |         	|	|	mq.send(msg,offers[offre].joueurSource)
-|           |        	| 	|	m,t=mq.receive()
-|           |        	| 	|	if t==os.getpid:
-|           |           |  	|	|	msg=m.decode()
-|           |           | 	|	|	Pour i allant de 0  à lsOff[offer].nb-1
-|           |           |     	|	|	|	hand2.add(msg) //main temporaire
-|	|	|	|	entier j =0;
-|           |         	|	|	Pour i allant de 0 à la taille de la main hand -1:
-|           |           |  	|	|	Si hand[i]==card:
-|           |           |      	|	|	|	delC //fnction pour supprimer de la main
-|           |           |     	|	|	 j++
-|           |           |  	|	|	Si j==lsOff[offer].nb:
-|           |           |      	|	|	|	break quitter la boucle pour
-|           |     	|	|	Pour i allant de 0 aux nombre d’offres -1):
-|           |         	|	|	|	quit=""
-|           |         	|	|	|	quit=quit.encode()
-|           |         	|	|	|	mq.send(quit,i)
-|	|	|	Sinon:
-|	|	|	|	|	print("Dommage une offre a déjà été acceptée")
-
-
-
-
-
-
-
-
-
-
-
-
-
-Dans notre MAIN PROGRAM (là on tout sera lancé et implémenté):
-On utilise un Manager de thread et Processus nommé Manager (//used on TD)
-avec notre Manager() nommé manage par la suiter:
-|	boolean gameState=True //utilisé dans les procdéudres précdente
-|	sem=[]
-|	listCard[] offers=[]
-|	list[Player] listPlayer=Liste de tous les joueurs à implémenter
-|	Pour i allant de 0 à nombre de Joueurs -1:
-|	|	s.add(0) //sem
-|	Mutex lock=Lock()
-|	nbPlayer=4	
-|	pack= manager.list() //pack de cartes
-|           list[Card] listOffre=[]
-|	Pour i allant de 0 :
-|	|	pack.add(Carte("Car"))
-|	|	pack.add(Carte("Train"))
-|	|	pack.add(Carte("Airplane"))
-|	random.shuffle(pack) // on melange le pack
-|	players = (Process(player(pack,lsOff,sem,semGame,lock) in range(nbPlayer))
-|      	game = Process(game(offers,lock,pack,listPlayers,semGame))
-|	game.start()
-|	Pour une joueur i parmi les joueurs du tableau players:
-|       	i.start()
-|	game.join()
-|       	Pour un joueur i parmi les joueurs du tableau players:
-|      		i.join()
-
-
-'''
+if __name__ == "__main__":
+	with mp.Manager() as manager:
+		gameState=True
+		s=[]
+		offers=[]
+		nbPlayer=4
+		listPlayer=instancieListJoueur(nbPlayer)
+		for i in range(listPlayer.length()):
+			s.append[0]
+		lock=Lock()
+		# On ajoute les cartes à la pioche	
+		pack = manager.list()
+		listOffer=[]
+		for i in range(5):
+			pack.append(Carte("Voiture"))
+			pack.append(Carte("Bateau"))
+			pack.append(Carte("Avion"))
+		random.shuffle(pack)
+	
+		players = mp.Process(target=player, args=(pack,listOffer,s,sG,lock) in range(nbPlayer))
+		game = mp.Process(target=game, args =(listOffer,lock,pack,listPlayer,sG))
+		game.start()
+		for k in players:
+			k.start()
+		game.join()
+		for u in players:
+			u.join()
