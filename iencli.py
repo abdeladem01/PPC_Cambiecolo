@@ -10,10 +10,23 @@ except sysv_ipc.ExistentialError:
     print("Cannot connect to message queue", key, ", terminating.")
     sys.exit(1)
 while True:
-  t=input("Voulez vous jouer ? oui/non")
+  t=input("Voulez vous jouer ? oui/non  ")
   if t=="oui":
-    break()
-mq.send(os.pid(),type=5)
+    break
+pid=os.getpid()
+m=str(pid).encode()
+mq.send(m,type=5)
+state = True
 while True:
-  m,t=mq.receive(type=(os.pid()))
-	print(m)
+	if state:
+		m,t=mq.receive(type=(os.getpid()))
+		m=m.decode()
+		if m == "done":
+			state = False
+		else :
+			print(m)
+	else :
+		toSend=input("\n")
+		msg=toSend.encode()
+		mq.send(msg,type=5)
+		state=False

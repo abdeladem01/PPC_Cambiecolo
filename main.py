@@ -65,7 +65,7 @@ def player(pack,listOffer,s,sG,lock,np):
     with lock:
       listPlayer[np].c.append(pack.pop()) #On tire une carte
   while(gameState):
-    print("Hand of player "+ str(np+1) +": ",listPlayer[np].c)
+    mqP.send("Hand of player "+ str(np+1) +": ",listPlayer[np].c)
     offre=int(input("Want to make an offer ? \nPut a nbr btw 1 and "+str(nbPlayer)+ " \nIf not, put another number")) 
     with lock:
       if 0<offre<4:
@@ -151,16 +151,22 @@ def instancieListJoueur(nbPlayer): #ToC
   return l
 '''
 if __name__ == "__main__":
-  
 	with mp.Manager() as manager:
+		listPlayer=[]
+		while True:
+			print("Number of players connected: "+str(len(listPlayer)))
+			m,t=mqP.receive()
+			if t==5:
+				mDecoded=m.decode()
+				listPlayer.append(Joueur(int(mDecoded),[]))
+			if len(listPlayer)>3:
+				print("All players connected! We launch the game :)")
+				break
 		gameState=True
 		s=[]
 		sG=[]
 		offers=[]
-		listPlayer=[]
 		nbPlayer=4
-		for i in range(4):
-			listPlayer.append(Joueur(i,[]))
 		for i in range(len(listPlayer)):
 			s.append(0)
 		lock=mp.Lock()
@@ -168,7 +174,7 @@ if __name__ == "__main__":
 		pack = manager.list()
 		listOffer=[]
 		for i in range(5):
-			pack.append("Car")
+			pack.append("Car") #On enleve 1 moyen, car autant de moyen que de joueur
 			pack.append("Train")
 			pack.append("Airplane")
 			pack.append("Bike")
