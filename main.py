@@ -182,7 +182,7 @@ if __name__ == "__main__":
 		random.shuffle(pack)
 		players=[0,0,0,0]
 		for i in range(nbPlayer):
-		  players[i] = mp.Process(target=player, args=(pack,listOffer,s,sG,lock,i))
+		  players[i] = mp.Process(target=player, args=(pack,listOffer,s,sG,lock,i)) #les client cest dea des process, prk creer process
 		game = mp.Process(target=game, args =(listOffer,lock,pack,listPlayer,sG))
 		game.start()
 		for k in players:
