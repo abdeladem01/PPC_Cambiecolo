@@ -12,7 +12,7 @@ bell_lock = threading.Lock()
 
 def deck():
     deck = []
-    transports = [ "Bike", "Train", "Car", "Airplane"]
+    transports = ["Feet","Bike", "Train", "Car", "Airplane"]
     for j in transports[:n] : #n moyen de transport pour n joueurs
         for _ in range(5):
             deck.append(j)
