@@ -45,26 +45,23 @@ def jouer(pid):
     mq.send(mes, type=pid)
     while playing:
         mes = "What do yo want to do? Make an offer(F) or accept an offer(A), else wait!"
-
-def jouer(pid):
-    mes = "Votre main est: "+str(hand[pid])
-    mes = mes.encode()
-    mq.send(mes, type=pid)
-    while playing:
-        mes = "What do yo want to do? Make an offer(F) or accept an offer(A), else wait!"
-				
-
+        mes=mes.encode()
+        mq.send(mes, type=pid)
+        m,_= mq.receive(type=pid)
 
 
 def connection(n):
     joueurs = 0
     cartes = deck()
+    print(cartes)
+    listpid=[]
     k = 0
     while True:
         pid, _ = mq.receive(type=1)
         pid = int(pid.decode())
         if joueurs < n:
             joueurs += 1
+            listpid.append(pid)
             offers[pid] = []
             hand[pid] = cartes[k:k+5]
             scores[pid] = 0
@@ -72,14 +69,19 @@ def connection(n):
             available[pid] = True
             mes = "Ton identifiant est: " + str(pid)
             mes = mes.encode()
-            mq.send(mes, type=2)
+            mq.send(mes, type=pid)
             play = threading.Thread(target=jouer, args=(pid,))
             play.start()
+            print(listpid)
         elif joueurs == n:
+            for i in listpid:
+              m="le jeu peut commencer "
+              m=m.encode()
+              mq.send(m,type=i)
             print("Le jeu peut commencer")
             mes = "La partie est pleine"
             mes = mes.encode()
-            mq.send(mes, type=3)
+            mq.send(mes, type=pid)
             break
         k += 5
 

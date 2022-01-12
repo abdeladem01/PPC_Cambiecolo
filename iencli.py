@@ -13,7 +13,7 @@ except sysv_ipc.ExistentialError:
     sys.exit(1)
 
 try:
-    mq = sysv_ipc.MessageQueue(keyGame)
+    mqgame = sysv_ipc.MessageQueue(keyGame)
 except sysv_ipc.ExistentialError:
     print("Cannot connect to message queue", keyGame, ", terminating.")
     sys.exit(1)
@@ -28,13 +28,16 @@ while True:
 		quit()
 	else:
 		print("Bad input! Try again !")
+print("caca")
 pid=os.getpid()
 m=str(pid).encode()
-mq.send(m,type=5)
+mq.send(m,type=1)
 state = True
+counter=0
 while True:
 	if state:
-		m,t=mq.receive(type=(os.getpid()))
+		print("caca")
+		m,t=mq.receive(type=pid)
 		m=m.decode()
 		if m == "done":
 			state = False
