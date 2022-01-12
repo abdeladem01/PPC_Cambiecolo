@@ -2,6 +2,7 @@
 import os
 import sysv_ipc
 import sys
+import threading
 
 key = 200
 keyGame=300
@@ -18,6 +19,14 @@ except sysv_ipc.ExistentialError:
     print("Cannot connect to message queue", keyGame, ", terminating.")
     sys.exit(1)
 
+def ecouteCanalGeneral():
+	while True:
+		m,t=mq.receive(type=3)
+		m=m.decode()
+		print(m)
+
+thread = threading.Thread(target=ecouteCanalGeneral)
+thread.start()
 
 while True:
 	t=input("Want to play ? yes/no  ")
@@ -44,5 +53,5 @@ while True:
 	else :
 		toSend=input("\n")
 		msg=toSend.encode()
-		mq.send(msg,type=5)
-		state=False
+		mq.send(msg,type=pid+10000)
+		state=True

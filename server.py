@@ -3,58 +3,76 @@ from multiprocessing import Manager
 import threading
 import random
 
-key= 200
-keyGame=300
+key = 200
+keyGame = 300
 mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
 mqGame = sysv_ipc.MessageQueue(keyGame, sysv_ipc.IPC_CREAT)
 playing = True
 bell_lock = threading.Lock()
 
+
 def deck():
     deck = []
-    transports = ["Feet","Bike", "Train", "Car", "Airplane"]
-    for j in transports[:n] : #n moyen de transport pour n joueurs
+    transports = ["Feet", "Bike", "Train", "Car", "Airplane"]
+    for j in transports[:n]:  #n moyen de transport pour n joueurs
         for _ in range(5):
             deck.append(j)
     random.shuffle(deck)
     return deck
 
+
 def bell(pid):
-    bell_lock.acquire() #lock mutext
+    bell_lock.acquire()  #lock mutext
     gagner = False
     list = hand[pid]
     if list.count(list[0]) == len(list):
         gagner = True
-    bell_lock.release()#release mutex
+    bell_lock.release()  #release mutex
     return gagner
+
 
 #will be called at every update of the dicti
 def offer_display():
     mes = str(offers).encode()
     mqGame.send(mes, type=3)
 
+
 def make_offer():
     pass
+
 
 def accept_offer():
     pass
 
+
 def jouer(pid):
-    mes = "Votre main est: "+str(hand[pid])
+    mes = "Votre main est: " + str(hand[pid])
     mes = mes.encode()
     mq.send(mes, type=pid)
     while playing:
         mes = "What do yo want to do? Make an offer(F) or accept an offer(A), else wait!"
-        mes=mes.encode()
+        mes = mes.encode()
         mq.send(mes, type=pid)
-        m,_= mq.receive(type=pid+10000)
+        mes = "done"
+        mes.encode()
+        mq.send(mes, type=pid)
+        m, _ = mq.receive(type=pid + 10000)
+        m = m.decode()
+        if m == "F":
+            print("oui")
+            m, _ = mq.receive(type=pid + 10000)
+        elif m == "A":
+            print("non")
+            m, _ = mq.receive(type=pid + 10000)
+        else:
+            print("truc")
 
 
 def connection(n):
     joueurs = 0
     cartes = deck()
     print(cartes)
-    listpid=[]
+    listpid = []
     k = 0
     while True:
         pid, _ = mq.receive(type=1)
@@ -63,21 +81,22 @@ def connection(n):
             joueurs += 1
             listpid.append(pid)
             offers[pid] = []
-            hand[pid] = cartes[k:k+5]
+            hand[pid] = cartes[k:k + 5]
             scores[pid] = 0
             #locks[pid]=threading.Lock()
             available[pid] = True
             mes = "Ton identifiant est: " + str(pid)
             mes = mes.encode()
             mq.send(mes, type=pid)
-            play = threading.Thread(target=jouer, args=(pid,))
+            play = threading.Thread(target=jouer, args=(pid, ))
             play.start()
             print(listpid)
         elif joueurs == n:
             for i in listpid:
-              m="le jeu peut commencer "
-              m=m.encode()
-              mq.send(m,type=i)
+                m = "le jeu peut commencer "
+                m = m.encode()
+                mq.send(m, type=3)
+				
             print("Le jeu peut commencer")
             mes = "La partie est pleine"
             mes = mes.encode()
