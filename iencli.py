@@ -28,7 +28,6 @@ while True:
 		quit()
 	else:
 		print("Bad input! Try again !")
-print("caca")
 pid=os.getpid()
 m=str(pid).encode()
 mq.send(m,type=1)
@@ -36,7 +35,6 @@ state = True
 counter=0
 while True:
 	if state:
-		print("caca")
 		m,t=mq.receive(type=pid)
 		m=m.decode()
 		if m == "done":

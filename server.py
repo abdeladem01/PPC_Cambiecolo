@@ -47,7 +47,7 @@ def jouer(pid):
         mes = "What do yo want to do? Make an offer(F) or accept an offer(A), else wait!"
         mes=mes.encode()
         mq.send(mes, type=pid)
-        m,_= mq.receive(type=pid)
+        m,_= mq.receive(type=pid+10000)
 
 
 def connection(n):
