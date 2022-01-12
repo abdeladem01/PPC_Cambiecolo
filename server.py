@@ -32,13 +32,20 @@ def bell(pid):
 
 
 #will be called at every update of the dicti
-def offer_display():
-    mes = str(offers).encode()
-    mqGame.send(mes, type=3)
+def offer_display(pid):
+	mes = str(offers).encode()
+	mq.send(mes, type=pid)
 
 
 def make_offer():
-    pass
+	l=[]
+    while True:
+		u=int(input("Quel carte voulez échanger (numéro), 0 pour arreter"))
+		if u==0:
+			break
+		else:
+			l.append(hand[pid][u-1])
+
 
 
 def accept_offer():
@@ -50,6 +57,7 @@ def jouer(pid):
     mes = mes.encode()
     mq.send(mes, type=pid)
     while playing:
+        offer_display(pid)
         mes = "What do yo want to do? Make an offer(F) or accept an offer(A), else wait!"
         mes = mes.encode()
         mq.send(mes, type=pid)
