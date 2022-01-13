@@ -4,7 +4,7 @@ from multiprocessing import Lock
 class MyRemoteClass:
     def __init__(self, number):
         self.available = {}
-        self.offer = {}
+        self.offers = {}
         self.mutex = Lock()
         self.bell=Lock()
     def get_flag(self):
@@ -26,6 +26,6 @@ class MyRemoteClass:
 
 remote = MyRemoteClass() #Creating an object remote from this class
 MyManager.register('sm', callable=lambda: remote)  #registring the remote on shared memory with the manager class 
-m = MyManager(address=("127.0.0.1", 8888), authkey=b'abracadabra') #from the documentation, needs changes
+m = MyManager(address=("127.255.255.255", 20), authkey=b'abracadabra') #from the documentation, needs changes 8888 for tcp
 s = m.get_server() #return the actual server under the control of the Manager
 s.serve_forever() #start and run it forever
