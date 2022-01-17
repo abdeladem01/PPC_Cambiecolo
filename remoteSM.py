@@ -4,7 +4,7 @@ from multiprocessing import Lock
 class MyRemoteClass:
     def __init__(self, number):
         self.available = {}
-        self.offers = {}
+        self.offers = {} 
         self.mutex = Lock()
         self.bell=Lock()
     def get_flag(self):
