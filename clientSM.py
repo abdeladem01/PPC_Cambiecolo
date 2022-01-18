@@ -102,7 +102,7 @@ if __name__ == "__main__":
     pid = os.getpid()
     print("Hey! if you're here, that means you want play!\nBut just in case you changed your mind, let us know!")
     while True:
-        connection = str(input("Do you really want to play? Type 'yes' to play and anything you want to quit"))
+        connection = str(input("Do you really want to play? Type 'yes' to play and anything you want to quit: "))
         if connection == "yes":
             print("Connecting...")
             break
