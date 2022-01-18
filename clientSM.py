@@ -41,7 +41,7 @@ def handler(sig, frame):
         mq.send(toSend, type=3)
         n, _=mq.receive(type=3)
         newCardsrcv = (n.decode()).split()
-        for l in range(len(newCardsrcv)):
+        for l in range(len(newCardsrcv)): while True:
             hand.append(newCardsrcv[l])
         print(hand)
         print("What you can do now : \nDo an offer (by typingF)\nAccept an offer(A)\nTold everyone that the only winner here is YOU!(S)\nOr do nothing")
@@ -166,7 +166,7 @@ if __name__ == "__main__":
                             else:
                                 print("What you type is not a number.")
                         if trgt == 0:
-                            t = False
+                            verif = False
                             break
                         elif trgt==pid:
                             print("HAHAHA It's your own PID")
