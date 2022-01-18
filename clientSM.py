@@ -16,7 +16,7 @@ except sysv_ipc.ExistentialError:
 
 hand=[] #global variable of hand of client
 MyManager.register('sm')
-m = MyManager(address=("127.255.255.255", 20), authkey=b'abracadabra')
+m = MyManager(address=("127.255.255.254", 8888), authkey=b'abracadabra')
 m.connect()
 sm = m.sm()
 
@@ -178,7 +178,7 @@ if __name__ == "__main__":
                             print("This player is busy, either making an offer, or accepting one. Try again later.")
                         else:
                             break
-                    if not t:
+                    if not verif:
                         break
                     if not (len(currentOffers[pid]) == len(currentOffers[trgt])):
                         cards_list = cardsXchgChoice()
@@ -237,7 +237,7 @@ if __name__ == "__main__":
                     if not (len(set(hand)) == 1):
                         print("The cards are not identical")
                     else:
-                        print(" __     __                               _ \n\\ \\   / /                              | |\n\\ \\_/ /__  _   _  __      _____  _ __ | |\n\\   / _ \\| | | | \\ \\ /\\ / / _ \\| '_ \\| |\n    | | (_) | |_| |  \\ V  V / (_) | | | |_|\n    |_|\\___/ \\__,_|   \\_/\\_/ \\___/|_| |_(_)\n                                           \n")
+                        print(" __     __                               _ \n \\ \\   / /                              | |\n  \\ \\_/ /__  _   _  __      _____  _ __ | |\n   \\   / _ \\| | | | \\ \\ /\\ / / _ \\| '_ \\| |\n    | | (_) | |_| |  \\ V  V / (_) | | | |_|\n    |_|\\___/ \\__,_|   \\_/\\_/ \\___/|_| |_(_)\n                                           \n")
                         scores = sm.get_points()
                         if pid in scores.keys():
                             score = scores[pid]

@@ -9,10 +9,10 @@ import ascii_art
 import threading 
 
 
-key = 300
+key = 200
 mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
 MyManager.register('sm')
-m = MyManager(address=("127.255.255.255", 20), authkey=b'abracadabra')
+m = MyManager(address=("127.255.255.254", 8888), authkey=b'abracadabra')
 m.connect()
 sm = m.sm()
 hands_items = {} #hands of player (will be needed one time only)
@@ -21,7 +21,7 @@ needToStop=True
 n=0 #nbr of players
 games=0 #nbr of games played
 
-def deck(): #Designating and Shuffling cards in deck
+def deckS(n): #Designating and Shuffling cards in deck
     global deck #deck() function has now acces to theglobal variable [String]deck
     deck = []
     transports = ["Shoes", "Bike", "Train", "Car", "Airplane"]
@@ -31,7 +31,7 @@ def deck(): #Designating and Shuffling cards in deck
     random.shuffle(deck)
     return deck
 
-def game(thread):
+def game():
     global deck
     global hands_items
     global needToStop
@@ -42,10 +42,10 @@ def game(thread):
     mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
     if games==0:
         n = int(input("Number n of players:"))
-    deck = deck(n)
+    deck = deckS(n)
     hands_items = {}
     i, k = 0, 0
-    if state==0:
+    if games==0:
         hands_items ={}
         while i < n: 
             pid, _ = mq.receive(type=1)
@@ -105,7 +105,7 @@ def handler(sig, frame):
     waitingStyle()
     print("{USER : ACTUAL SCORE}")
     print(sm.get_points())
-    While True:
+    while True:
         kp=input("Do you want to keep going? Put yes to play :) or anything to quit :(")
         if kp =="yes":
             waitingStyle()
@@ -154,9 +154,9 @@ def listenAndBan():
             break
 
 if __name__ == "__main__":
-     mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
-    pts=sm.get_points()
-    for pid in hands_items.keys():
-        sm.set_points(0,pid)
-    thread = threading.Thread(target=listenAndBan) 
-    game() 
+	mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
+	pts=sm.get_points()
+	for pid in hands_items.keys():
+	        sm.set_points(0,pid)
+	thread = threading.Thread(target=listenAndBan) 
+	game() 

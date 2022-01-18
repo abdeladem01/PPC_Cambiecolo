@@ -1,26 +1,42 @@
 from multiprocessing.managers import BaseManager as MyManager
 from multiprocessing import Lock
-#Defining Remote Managed Class...
+
+
 class MyRemoteClass:
-    def __init__(self, number):
+
+    def __init__(self):
         self.available = {}
-        self.offers = {} 
-        self.mutex = Lock()
+        self.points = {}
+        self.offers = {}
+        self.lock = Lock()
+
     def get_flag(self):
         return self.available
+
     def set_flag(self, pushed_bool, key):
         self.available[key] = pushed_bool
+
     def get_offers(self):
         return self.offers
+
     def set_offers(self, pushed_list, key):
         self.offers[key] = pushed_list
-    def acquire_mutex(self): #Shared mutex on SM
-        self.mutex.acquire()
-    def release_mutex(self):
-        self.mutex.release()
 
-remote = MyRemoteClass() #Creating an object remote from this class
-MyManager.register('sm', callable=lambda: remote)  #registring the remote on shared memory with the manager class 
-m = MyManager(address=("127.255.255.255", 20), authkey=b'abracadabra') #from the documentation, needs changes 8888 for tcp
-s = m.get_server() #return the actual server under the control of the Manager
-s.serve_forever() #start and run it forever
+    def get_points(self):
+        return self.points
+
+    def set_points(self, pushed_int, key):
+        self.points[key] = pushed_int
+
+    def acquire_lock(self):
+        self.lock.acquire()
+
+    def release_lock(self):
+        self.lock.release()
+
+remote = MyRemoteClass()
+MyManager.register('sm', callable=lambda: remote)
+m = MyManager(address=("127.255.255.254", 8888), authkey=b'abracadabra') 
+s = m.get_server()
+s.serve_forever()
+
