@@ -66,6 +66,7 @@ def game():
             mq.send(pid_server, type=pid)
             i,k=i+1,k+5
         for pid, list in hands_items.items():
+            sm.set_points(0,pid)
             hand_pid = (' '.join(list)).encode() #send the initial hand for each client
             mq.send(hand_pid, type=pid)
         games+=1
@@ -154,9 +155,7 @@ def listenAndBan():
             break
 
 if __name__ == "__main__":
-	mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
-	pts=sm.get_points()
-	for pid in hands_items.keys():
-	        sm.set_points(0,pid)
-	thread = threading.Thread(target=listenAndBan) 
-	game() 
+    mq = sysv_ipc.MessageQueue(key, sysv_ipc.IPC_CREAT)
+    pts=sm.get_points()
+    thread = threading.Thread(target=listenAndBan) 
+    game() 
