@@ -6,7 +6,6 @@ class MyRemoteClass:
         self.available = {}
         self.offers = {} 
         self.mutex = Lock()
-        self.bell=Lock()
     def get_flag(self):
         return self.available
     def set_flag(self, pushed_bool, key):
@@ -19,10 +18,6 @@ class MyRemoteClass:
         self.mutex.acquire()
     def release_mutex(self):
         self.mutex.release()
-    def acquire_bell(self): #Shared mutex on bell
-        self.bell.acquire
-    def release_bell(self):
-        self.bell.release()
 
 remote = MyRemoteClass() #Creating an object remote from this class
 MyManager.register('sm', callable=lambda: remote)  #registring the remote on shared memory with the manager class 

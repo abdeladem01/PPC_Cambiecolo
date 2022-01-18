@@ -3,7 +3,7 @@ import os
 import sys
 import random
 import sysv_ipc
-import signal
+import signalt
 import time
 import ascii_art
 
