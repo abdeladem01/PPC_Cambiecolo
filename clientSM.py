@@ -24,7 +24,7 @@ def handler(sig, frame):
     global hand 
     global ppid
     if sig==signal.SIGUSR1:
-        print("Knock Knock! Someone want to exchange cards with you!")
+        print("\nKnock Knock! Someone want to exchange cards with you!")
         offers=sm.get_offers()
         cards=offers[pid]
         n=0
