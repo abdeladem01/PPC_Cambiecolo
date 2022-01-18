@@ -24,7 +24,7 @@ games=0 #nbr of games played
 def deck(): #Designating and Shuffling cards in deck
     global deck #deck() function has now acces to theglobal variable [String]deck
     deck = []
-    transports = ["Feet", "Bike", "Train", "Car", "Airplane"]
+    transports = ["Shoes", "Bike", "Train", "Car", "Airplane"]
     for j in transports[:n]: #:n => for n different cards if there is n player
         for _ in range(5):
             deck.append(j)
