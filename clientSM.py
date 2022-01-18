@@ -149,12 +149,20 @@ if __name__ == "__main__":
                     sm.acquire_lock()
                     sm.set_offers(cards_list, pid)
                     currentOffers = sm.get_offers()
-                    print(currentOffers)
+                    currentOffersHidden="{"
+                    for pid , offer in currentOffers.items():
+                        currentOffersHidden+=str(pid)+" is proposing "+str(len(offer))+" offer(s);"
+                    currentOffersHidden+="}"
+                    print(currentOffersHidden)
                     sm.release_lock()
                     break
                 elif msg == "A":
                     currentOffers = sm.get_offers()
-                    print(currentOffers)
+                    currentOffersHidden="{"
+                    for pid , offer in currentOffers.items():
+                        currentOffersHidden+=str(pid)+" is proposing "+str(len(offer))+" offer(s);"
+                    currentOffersHidden+="}"
+                    print(currentOffersHidden)
                     while True:
                         available = sm.get_flag()
                         print(available)
