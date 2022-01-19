@@ -43,7 +43,7 @@ def handler(sig, frame):
         newCardsrcv = (n.decode()).split()
         for l in range(len(newCardsrcv)): while True:
             hand.append(newCardsrcv[l])
-        print(hand)
+        print("\033[94m ", hand)
         print("What you can do now : \nDo an offer (by typingF)\nAccept an offer(A)\nTold everyone that the only winner here is YOU!(S)\nOr do nothing")
     elif sig==signal.SIGUSR2:
         print("Someone won, It's the end of a game!")
@@ -53,7 +53,7 @@ def handler(sig, frame):
         except sysv_ipc.Error:
             sys.exit(1)
         hand=(m.decode()).split()
-        print(hand)
+        print("\033[94m ", hand)
         print("What you can do now : \nDo an offer (by typingF)\nAccept an offer(A)\nTold everyone that the only winner here is YOU!(S)\nOr do nothing")
     elif sig==signal.SIGINT: 
         try:
@@ -132,7 +132,7 @@ if __name__ == "__main__":
         while True:
             verif = True
             time.sleep(1)
-            print(hand)
+            print("\033[94m ",hand)
             print("What you can do now : \nDo an offer (by typing F)\nAccept an offer(A)\nTold everyone that the only winner here is YOU!(S)\nOr do nothing")
             msg = str(input("Your choice is: "))
             if msg.capitalize() != "F" and msg.capitalize() != "A" and msg.capitalize() != "S":
@@ -239,7 +239,7 @@ if __name__ == "__main__":
                     sm.set_offers(empty, pid)
                     sm.set_offers(empty, trgt)
                     sm.release_lock()
-                    print(hand)
+                    print("\033[94m ", hand)
                     break
                 elif msg == "S":
                     if not (len(set(hand)) == 1):
