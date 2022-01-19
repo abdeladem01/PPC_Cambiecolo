@@ -208,22 +208,16 @@ if __name__ == "__main__":
                     # envoi des cards avec mq ici
                     # reception (maj des cartes en main)
                     n = 0
-                    while n < len(currentOffers[pid]):
-                        for k in range(len(hand)):
-                            if hand[k] == cards_list[0]:
-                                hand.pop(k)
-                                n += 1
-                                break
+                    for cc in cards_list:
+                        hand.remove(cc)
                     n, _ = mq.receive()
                     newCardsrcv = (n.decode()).split()
                     for l in range(len(newCardsrcv)):
                         hand.append(newCardsrcv[l])
-
                     offers = sm.get_offers()
-                    cards = offers[pid]
                     msg = ""
-                    for q in range(len(cards)):
-                        msg += cards[q] + " "
+                    for q in range(len(cards_list)):
+                        msg += cards_list[q] + " "
                     msg = msg.encode()
                     mq.send(msg, type=3)
 
@@ -233,7 +227,6 @@ if __name__ == "__main__":
                     available[trgt] = True
                     currentOffers = sm.get_offers()
                     empty=[]
-                    sm.set_offers(empty, pid)
                     sm.set_offers(empty, trgt)
                     sm.release_lock()
                     print("\033[94m ", hand,"\033[0m")
