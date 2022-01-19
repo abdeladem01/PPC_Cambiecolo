@@ -161,7 +161,8 @@ if __name__ == "__main__":
                     currentOffers = sm.get_offers()
                     currentOffersHidden="{"
                     for pidz , offerz in currentOffers.items():
-                        currentOffersHidden+=str(pidz)+" is proposing an offer of "+str(len(offerz))+" cards(s);"
+                        if len(offerz)!=0:
+                            currentOffersHidden+=str(pidz)+" is proposing an offer of "+str(len(offerz))+" cards(s);"
                     currentOffersHidden+="}"
                     print(currentOffersHidden)
                     while True:
