@@ -27,13 +27,6 @@ def handler(sig, frame):
         print("\nKnock Knock! Someone want to exchange cards with you!")
         offers=sm.get_offers()
         cards=offers[pid]
-        n=0
-        while n<len(currentOffers[pid]):
-            for k in range (len(hand)):
-                if hand[k]==cards[0]:
-                    hand.pop(k)
-                    n+=1
-                    break
         toSend=""
         for v in range (len(cards)):
             toSend +=cards[v]+" "
@@ -156,6 +149,8 @@ if __name__ == "__main__":
                     currentOffersHidden+="}"
                     print(currentOffersHidden)
                     sm.release_lock()
+                    for cc in cartes_list:
+                        hand.remove(cc)
                     break
                 elif msg == "A":
                     currentOffers = sm.get_offers()
