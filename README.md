@@ -27,6 +27,7 @@ All you have to do is to edit in the three files the adresss and the port (8888 
   line 19 for clientSM.py
 )
 
-##### Group : Abdeladem Saoud Fattah | Paul Bridon
 
-##### This project is the fruit of a collaboration with : Chakib Hamie and Derhen Ruffle 
+
+###### Group : Abdeladem Saoud Fattah | Paul Bridon
+###### This project is the fruit of a collaboration with : Chakib Hamie and Derhen Ruffle 
