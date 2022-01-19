@@ -151,7 +151,7 @@ if __name__ == "__main__":
                     currentOffers = sm.get_offers()
                     currentOffersHidden="{"
                     for pidz , offerz in currentOffers.items():
-                        currentOffersHidden+=str(pidz)+" is proposing "+str(len(offerz))+" offer(s);"
+                        currentOffersHidden+=str(pidz)+" is proposing an offer of "+str(len(offerz))+" card(s);"
                     currentOffersHidden+="}"
                     print(currentOffersHidden)
                     sm.release_lock()
@@ -160,7 +160,7 @@ if __name__ == "__main__":
                     currentOffers = sm.get_offers()
                     currentOffersHidden="{"
                     for pidz , offerz in currentOffers.items():
-                        currentOffersHidden+=str(pidz)+" is proposing "+str(len(offerz))+" offer(s);"
+                        currentOffersHidden+=str(pidz)+" is proposing an offer of "+str(len(offerz))+" cards(s);"
                     currentOffersHidden+="}"
                     print(currentOffersHidden)
                     while True:
