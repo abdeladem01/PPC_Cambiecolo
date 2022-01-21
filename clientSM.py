@@ -149,7 +149,7 @@ if __name__ == "__main__":
                     currentOffersHidden+="}"
                     print(currentOffersHidden)
                     sm.release_lock()
-                    for cc in cartes_list:
+                    for cc in cards_list:
                         hand.remove(cc)
                     break
                 elif msg == "A":
