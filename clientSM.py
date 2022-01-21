@@ -40,6 +40,10 @@ def handler(sig, frame):
         print("What you can do now : \nDo an offer (by typingF)\nAccept an offer(A)\nTold everyone that the only winner here is YOU!(S)\nOr do nothing")
     elif sig==signal.SIGUSR2:
         print("Someone won, It's the end of a game!")
+        print("Recovering Scores Table...")
+        time.sleep(0.5)
+        print("{USER : ACTUAL SCORE}")
+        print(sm.get_points())
         print("Waiting for decision from server...")
         try:
             m, _ = mq.receive(type=pid)
